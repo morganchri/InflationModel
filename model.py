@@ -1,80 +1,65 @@
 import numpy as np
 
-
-def cost_function(theta, x, y):
-    m = len(y)
-    pred = x.dot(theta)
-    cost = (1 / (2 * m)) * np.sum(np.square(pred - y))
-    return cost
-
-
 def polynomial_transform(x, degree):
     x_copy = x.copy()
-
-    for i in range(degree - 1, degree + 1):
+    for i in range(2, degree + 1):
         x = np.concatenate((x, [j ** i for j in x_copy]), axis=1)
-    print(x)
     return x
-
-
-def forward_n(x, w, b):
-    return np.dot(x, w) + b
-
-
-def loss(y, y_pred):
-    return np.sqrt(np.mean((y_pred - y) ** 2))
-
-
-def gradient(x, y, y_pred):
-    m = x.shape[0]
-    dw = (2 / m) * np.dot(x.T, (y_pred - y))
-    db = (2 / m) * np.sum((y_pred - y))
-    return dw, db
-
-
-def polynomial_gradient_descent(x, y, epochs, lr, degree, display=True):
-    x_new = polynomial_transform(x, degree)
-    n = x_new.shape[1]
-
-    #weights = np.random.random((n, 1))
-    weights = np.zeros((n, 1))
-    bias = 0
-
-    loss_history = []
-    for epoch in range(epochs):
-        losses = []
-        y_pred = forward_n(x_new, weights, bias)
-        dw, db = gradient(x_new, y, y_pred)
-        weights = weights - lr * dw
-        bias = bias - lr * db
-        y_pred = forward_n(x_new, weights, bias)
-        l = loss(y, y_pred)
-        losses.append(l)
-        loss_history.append(l)
-        if ((epoch % 10 == 0 or epoch == epochs - 1) and display == True):
-            print("progress:", epoch, "loss=", np.mean(losses))
-    return weights, bias, loss_history
-
-
-def predict(x, w, b, degree):
-    x = polynomial_transform(x, degree)
-    return np.dot(x, w) + b
 
 def normalize(x):
     return (x - x.min()) / (x.max() - x.min())
 
+def f(weights, x):
+    return (weights[5] * x ** 5) + \
+        (weights[4] * x ** 4) + \
+        (weights[3] * x ** 3) + \
+        (weights[2] * x ** 2) + \
+        (weights[1] * x) + \
+        weights[0]
 
-def linear_gradient_descent(x, y, theta, l=0.03, iterations=100):
-    m = len(y)
-    c_hist = np.zeros(iterations)
-    t_hist = np.zeros((iterations, 2))
-    for i in range(iterations):
-        pred = np.dot(x, theta)
-        theta -= (1 / m) * l * (x.T.dot((pred - y)))
-        t_hist[i, :] = theta.T
-        c_hist[i] = cost_function(theta, x, y)
-    return theta, c_hist, t_hist
 
+def loss_mse(y, y_bar):
+    return sum((y - y_bar) ** 2) / len(y)
+
+
+def nonlinear_gradient(weights, x, y, lr):
+    y = y.reshape(y.shape[0], 1)
+    y_bar = np.array([f(weights, x_val) for x_val in x])
+    y_bar = y_bar.reshape(y_bar.shape[0], 1)
+    x_all = polynomial_transform(x.reshape(x.shape[0], 1), 5)
+    x_all = np.concatenate((np.ones((x.shape[0], 1)), x_all), axis=1)
+    w = x_all * (y - y_bar)
+    n = y.shape[0]
+    gradient = (-2 / n) * (w.sum(axis=0))
+    new_x = weights - (lr * gradient)
+    new_model_weights = new_x
+    new_y_bar = np.array([f(new_model_weights, x_val) for x_val in x])
+    updated_model_loss = loss_mse(y, new_y_bar)
+    return updated_model_loss, new_model_weights, new_y_bar
+
+
+def nonlinear_gradient_descent(weights, x, y, lr, epochs):
+    loss_history = []
+    betas = weights
+    for i in range(epochs):
+        loss = nonlinear_gradient(betas, x, y, lr)
+        betas = loss[1]
+        loss_history.append(loss[0])
+        if (i > 0):
+            loss_pct = ((loss_history[i] - loss_history[i - 1]) / loss_history[i - 1])
+            if ((loss_pct.all()) <= 0.01):
+                print("Hit Threshold")
+                break
+    return betas
+
+def jacobian(x):
+    return np.array([
+        -x ** 0,
+        -x,
+        -x ** 2,
+        -x ** 3,
+        -x ** 4
+    ]).T
 
 def gauss_newton():
     return
