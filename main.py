@@ -26,7 +26,7 @@ if __name__ == '__main__':
     b = np.append(1, b)
     x_vals = mp.normalize(x_data['M2SL'].to_numpy())
 
-    x_all = mp.polynomial_transform(x_vals.reshape(x_vals.shape[0], 1), 5)
+    x_all = mp.nonlinear_transform(x_vals.reshape(x_vals.shape[0], 1), 5)
 
     x_all = np.concatenate((np.ones((x.shape[0], 1)), x_all), axis=1)
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     y_vals = y_vals.reshape(y_vals.shape[0], 1)
 
-    test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.75, 10000)
+    test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.3, 20000)
 
     test_y = [mp.f(test_weights, val) for val in x_all]
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     b2 = np.random.rand(5)
     x_vals = mp.normalize(x_data['M2SL'].to_numpy())
-    x_all = mp.polynomial_transform(x_vals.reshape(x_vals.shape[0], 1), 5)
+    x_all = mp.nonlinear_transform(x_vals.reshape(x_vals.shape[0], 1), 5)
     y_vals = mp.normalize(y_data.to_numpy())
     y_vals = y_vals.reshape(y_vals.shape[0], 1)
     weights = mp.gauss_newton(b2, x_all, y_vals)
@@ -57,6 +57,21 @@ if __name__ == '__main__':
     plt.figure()
     plt.scatter(x_all[:, 0], y_vals)
     plt.plot(x_vals, test_y, c="r")
+    plt.show()
+
+    x_vals = mp.normalize(x_data['M2SL'].to_numpy())
+    y_vals = mp.normalize(y_data.to_numpy())
+
+    betas = np.random.rand(5, 1)
+    betas = np.append(betas, 1)
+
+    popt = mp.lm(mp.function, x_vals, y_vals, betas)
+
+    y_test = mp.function(x_vals, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5])
+
+    plt.figure()
+    plt.scatter(x_vals, y_vals)
+    plt.plot(x_vals, y_test, c="r")
     plt.show()
 
     end_time = datetime.now()

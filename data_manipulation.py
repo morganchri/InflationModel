@@ -11,9 +11,9 @@ fed_funds = pd.read_csv("DFF.csv")
 data = data.merge(fed_funds, how="left", left_on="DATE", right_on="DATE")
 
 
-# plt.scatter(data["M2SL"], data["CPIChange"])
-# plt.title("M2")
-# plt.show()
+plt.scatter(data["M2SL"], data["CPIChange"])
+plt.title("M2")
+plt.show()
 # plt.scatter(data["DFF"], data["CPIChange"])
 # plt.title("Fed Funds")
 # plt.show()

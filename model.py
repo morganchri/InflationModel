@@ -1,8 +1,17 @@
 import numpy as np
 import scipy.linalg as la
+from scipy.optimize import curve_fit
 
 
-def polynomial_transform(x, degree):
+def nonlinear_transform(x, degree):
+    '''
+    Transforms the data into nth degree data.  Takes on a mx1 numpy array and
+    transforms it into a mxdegree numpy array iteratively.
+
+    :param x: The data to be transformed. in the form of a mx1 numpy array
+    :param degree: The highest degree wanted
+    :return: The new data in the form of a mxdegree numpy array
+    '''
     x_copy = x.copy()
     for i in range(2, degree + 1):
         x = np.concatenate((x, [j ** i for j in x_copy]), axis=1)
@@ -10,10 +19,23 @@ def polynomial_transform(x, degree):
 
 
 def normalize(x):
+    '''
+    Min-max nomalization equation.
+
+    :param x: The input to be normalized
+    :return: Normalized data
+    '''
     return (x - x.min()) / (x.max() - x.min())
 
 
 def f(weights, x):
+    '''
+    Function for evaluating y using matrix multiplication
+
+    :param weights: The weights, or coefficients for the equation
+    :param x: The input data used to evaluate y
+    :return: a mx1 numpy array of estimated y values
+    '''
     return weights.dot(x.T)
 
 
@@ -56,6 +78,14 @@ def residual(weights, x, y):
 
 def gauss_newton(weights, x, y):
     J = jacobian(x[:, 0]).T
-    r = -residual(weights, x,
-                  y).reshape(1, -residual(weights, x, y).shape[0])[0]
+    r = -residual(weights, x, y).reshape(1, -residual(weights, x, y).shape[0])[0]
     return weights + la.lstsq(J, r)[0]
+
+
+def function(x, a, b, c, d, e, f):
+    return (a * x ** 5) + (b * x ** 4) + (c * x ** 3) + (d * x ** 2) + (e * x) + f
+
+
+def lm(f, x, y, weights):
+    popt, pcov = curve_fit(f, x, y, p0=weights)
+    return popt
