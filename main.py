@@ -34,17 +34,29 @@ if __name__ == '__main__':
 
     y_vals = y_vals.reshape(y_vals.shape[0], 1)
 
-    test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.3, 20000)
+    test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.3, 30000)
 
     test_y = [mp.f(test_weights, val) for val in x_all]
 
     plt.figure()
     plt.scatter(x_vals, y_vals)
     plt.plot(x_vals, test_y, c="r")
+    plt.title("Gradient Descent")
+    plt.xlabel("M2 Money Supply")
+    plt.ylabel("Change in CPI")
     plt.show()
     plt.figure()
     plt.plot(losses)
+    plt.title("Loss")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
     plt.show()
+
+    end_time = datetime.now()
+    print('Gradient Descent Duration: {}'.format(end_time - start_time))
+
+
+    start_time = datetime.now()
 
     b2 = np.random.rand(5)
     x_vals = mp.normalize(x_data['M2SL'].to_numpy())
@@ -57,7 +69,15 @@ if __name__ == '__main__':
     plt.figure()
     plt.scatter(x_all[:, 0], y_vals)
     plt.plot(x_vals, test_y, c="r")
+    plt.title("Gauss-Newton")
+    plt.xlabel("M2 Money Supply")
+    plt.ylabel("Change in CPI")
     plt.show()
+
+    end_time = datetime.now()
+    print('Gauss-Newton Duration: {}'.format(end_time - start_time))
+
+    start_time = datetime.now()
 
     x_vals = mp.normalize(x_data['M2SL'].to_numpy())
     y_vals = mp.normalize(y_data.to_numpy())
@@ -72,7 +92,10 @@ if __name__ == '__main__':
     plt.figure()
     plt.scatter(x_vals, y_vals)
     plt.plot(x_vals, y_test, c="r")
+    plt.title("Levenberg-Marquardt")
+    plt.xlabel("M2 Money Supply")
+    plt.ylabel("Change in CPI")
     plt.show()
 
     end_time = datetime.now()
-    print('Duration: {}'.format(end_time - start_time))
+    print('Levenberg-Marquardt Duration: {}'.format(end_time - start_time))
