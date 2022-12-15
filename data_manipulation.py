@@ -9,6 +9,7 @@ data = cpi.merge(m2, how="right", left_on="DATE", right_on="DATE")
 data["CPIChange"] = (((data["CPIAUCSL"] - data["CPIAUCSL"].shift(1) - 1) / (data["CPIAUCSL"].shift(1) - 1)).fillna(0))
 fed_funds = pd.read_csv("DFF.csv")
 data = data.merge(fed_funds, how="left", left_on="DATE", right_on="DATE")
+print(data["DATE"].max())
 
 plt.figure()
 plt.scatter(data["M2SL"], data["CPIChange"])
@@ -71,5 +72,7 @@ gdp = pd.read_csv("GDP.csv")
 gdp["DATE"] = pd.to_datetime(gdp["DATE"])
 gdp = gdp.set_index("DATE").resample("M").last().bfill().reset_index()
 gdp['DATE'] = gdp['DATE'].dt.strftime('%Y-%m-01')
+
+
 
 #print(gdp)
