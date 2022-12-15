@@ -40,10 +40,27 @@ def f(weights, x):
 
 
 def loss_mse(y, y_bar):
+    '''
+    Loss function.  Returns the loss
+
+    :param y: numpy Array representing the existing y values
+    :param y_bar: numpy Array representing the calculateed y values
+    :return: float representing the mean of the squared error
+    '''
     return ((y - y_bar) ** 2).mean()
 
 
 def nonlinear_gradient(weights, x, y, lr):
+    '''
+    Calculates the gradient, new weights, new loss, and new y_bar for the gradient descent algorithm,
+    is what is being iterated over during the Gradient Descent algorithm
+
+    :param weights: numpy array of the weights that are being adjusted
+    :param x: numpy array of input parameters
+    :param y: numpy array of the output parameters
+    :param lr: learning rate for the algorithm
+    :return: the new loss, new weights, and new estimated y values
+    '''
     y_bar = f(weights, x)
     y_bar = y_bar.reshape(y_bar.shape[0], 1)
     w = x * (y - y_bar)
@@ -57,6 +74,17 @@ def nonlinear_gradient(weights, x, y, lr):
 
 
 def nonlinear_gradient_descent(weights, x, y, lr, epochs):
+    '''
+    Iterate across a set number of epochs given an initial set of weights, x inputs, y outputs, and learning rate.
+
+    :param weights: initial set of weights to be adjusted for the gradient descent algorithm, typically a numpy array
+        of random values from 0 to 1
+    :param x: x inputs to be used to calculate the loss function
+    :param y: y outputs that are used to calculate the loss
+    :param lr: learning rate for the algorithm that adjusts the gradient so that it does not overshoot
+    :param epochs: number of iterations to be run
+    :return: the new weights and history of the loss values
+    '''
     loss_history = []
     betas = weights
     for i in range(epochs):
