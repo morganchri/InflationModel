@@ -38,8 +38,6 @@ tax["DATE"] = pd.to_datetime(tax["DATE"])
 tax = tax.set_index("DATE").resample("M").last().bfill().reset_index()
 tax['DATE'] = tax['DATE'].dt.strftime('%Y-%m-01')
 
-print(tax)
-
 data = data.merge(tax, how="left", left_on="DATE", right_on="DATE")
 data = data.dropna()
 

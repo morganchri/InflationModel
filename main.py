@@ -34,7 +34,9 @@ if __name__ == '__main__':
 
     y_vals = y_vals.reshape(y_vals.shape[0], 1)
 
-    test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.3, 30000)
+    #test_weights2, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.3, 100)
+
+    test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 3, 200)
 
     test_y = [mp.f(test_weights, val) for val in x_all]
 
@@ -51,6 +53,12 @@ if __name__ == '__main__':
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.show()
+    #plt.figure()
+    #plt.plot(losses2)
+    #plt.title("Loss")
+    #plt.xlabel("Epochs")
+    #plt.ylabel("Loss")
+    #plt.show()
 
     end_time = datetime.now()
     print('Gradient Descent Duration: {}'.format(end_time - start_time))

@@ -40,7 +40,7 @@ def f(weights, x):
 
 
 def loss_mse(y, y_bar):
-    return sum((y.sum(axis=0) - y_bar.sum(axis=0)) ** 2) / len(y)
+    return ((y - y_bar) ** 2).mean()
 
 
 def nonlinear_gradient(weights, x, y, lr):
@@ -49,9 +49,9 @@ def nonlinear_gradient(weights, x, y, lr):
     w = x * (y - y_bar)
     n = y.shape[0]
     gradient = (-2 / n) * (w.sum(axis=0))
-    new_x = weights - (lr * gradient)
-    new_model_weights = new_x
-    new_y_bar = np.array([f(new_model_weights, x_val) for x_val in x])
+    new_w = weights - (lr * gradient)
+    new_model_weights = new_w
+    new_y_bar = f(new_model_weights, x)
     updated_model_loss = loss_mse(y, new_y_bar)
     return updated_model_loss, new_model_weights, new_y_bar
 
