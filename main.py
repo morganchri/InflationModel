@@ -40,8 +40,6 @@ if __name__ == '__main__':
 
     y_vals = y_vals.reshape(y_vals.shape[0], 1)
 
-    #test_weights2, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.3, 100)
-
     test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.75, 500000)
     print("Gradient Descent Weights")
     print(test_weights)
@@ -61,16 +59,9 @@ if __name__ == '__main__':
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
     plt.show()
-    #plt.figure()
-    #plt.plot(losses2)
-    #plt.title("Loss")
-    #plt.xlabel("Epochs")
-    #plt.ylabel("Loss")
-    #plt.show()
 
     end_time = datetime.now()
     print('Gradient Descent Duration: {}'.format(end_time - start_time))
-
 
     start_time = datetime.now()
 
@@ -134,10 +125,11 @@ if __name__ == '__main__':
 
     test_GD = [mp.f(test_weights, val) for val in x_all_test_GD]
     test_GD = mp.normalize(np.array(test_GD))
-    print(mp.loss_mse(test_set["CPIChange"].to_numpy(), test_GD))
+    print("Test Gradient Descent Cost")
+    print(mp.loss_mse(test_set["CPIChange"].to_numpy(), np.array(test_GD)))
 
     plt.figure()
-    plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), test_set["CPIChange"].to_numpy())
+    plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), mp.normalize(test_set["CPIChange"].to_numpy()))
     plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), np.array(test_GD), c="r")
     plt.title("Gradient Descent Test")
     plt.xlabel("M2 Money Supply")
@@ -150,10 +142,11 @@ if __name__ == '__main__':
 
     test_GN = [mp.f(weights, val) for val in x_all_test_GN]
     test_GN = mp.normalize(np.array(test_GN))
-    print(mp.loss_mse(test_set["CPIChange"].to_numpy(), test_GN))
+    print("Test Gauss-Newton Cost")
+    print(mp.loss_mse(test_set["CPIChange"].to_numpy(), np.array(test_GN)))
 
     plt.figure()
-    plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), test_set["CPIChange"].to_numpy())
+    plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), mp.normalize(test_set["CPIChange"].to_numpy()))
     plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), np.array(test_GN), c="r")
     plt.title("Gauss-Newton Test")
     plt.xlabel("M2 Money Supply")
@@ -167,10 +160,11 @@ if __name__ == '__main__':
 
     test_LM = mp.function(x_vals_test_LM, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5])
     test_LM = mp.normalize(np.array(test_LM))
-    print(mp.loss_mse(test_set["CPIChange"].to_numpy(), test_LM))
+    print("Test Levenberg-Marquardt Cost")
+    print(mp.loss_mse(test_set["CPIChange"].to_numpy(),np.array(test_LM)))
 
     plt.figure()
-    plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), test_set["CPIChange"].to_numpy())
+    plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), mp.normalize(test_set["CPIChange"].to_numpy()))
     plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), np.array(test_LM), c="r")
     plt.title("Levenberg-Marquardt Test")
     plt.xlabel("M2 Money Supply")
