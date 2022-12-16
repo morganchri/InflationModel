@@ -3,6 +3,7 @@ import pandas as pd
 import model as mp
 import matplotlib.pyplot as plt
 from datetime import datetime
+from scipy.stats import f
 
 if __name__ == '__main__':
     np.set_printoptions(threshold=np.inf)
@@ -113,7 +114,6 @@ if __name__ == '__main__':
     end_time = datetime.now()
     print('Levenberg-Marquardt Duration: {}'.format(end_time - start_time))
 
-
     test_set = shuffle_df[train_size:]
     x_data_test = test_set.drop(["CPIAUCSL", "CPIChange"], axis=1)
     pd.set_option('display.max_rows', None)
@@ -137,6 +137,7 @@ if __name__ == '__main__':
     plt.show()
 
     b2 = np.random.rand(5)
+    b2 = np.append(b2, 1)
     x_vals_test_GN = mp.normalize(x_data_test['M2SL'].to_numpy())
     x_all_test_GN = mp.nonlinear_transform(x_vals_test_GN.reshape(x_vals_test.shape[0], 1), 5)
 
@@ -161,7 +162,7 @@ if __name__ == '__main__':
     test_LM = mp.function(x_vals_test_LM, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5])
     test_LM = mp.normalize(np.array(test_LM))
     print("Test Levenberg-Marquardt Cost")
-    print(mp.loss_mse(test_set["CPIChange"].to_numpy(),np.array(test_LM)))
+    print(mp.loss_mse(test_set["CPIChange"].to_numpy(), np.array(test_LM)))
 
     plt.figure()
     plt.scatter(mp.normalize(x_data_test['M2SL'].to_numpy()), mp.normalize(test_set["CPIChange"].to_numpy()))
@@ -170,3 +171,25 @@ if __name__ == '__main__':
     plt.xlabel("M2 Money Supply")
     plt.ylabel("Change in CPI")
     plt.show()
+
+    # f-scores
+    print("Gauss-Newton vs Gradient Descent")
+    F = mp.f_stat(mp.normalize(test_set["CPIChange"].to_numpy()), test_GN,
+                       mp.normalize(test_set["CPIChange"].to_numpy()), test_GD)
+    p_value = 1 - f.cdf(F, len(mp.normalize(test_set["CPIChange"].to_numpy()) - 1),
+                        len(mp.normalize(test_set["CPIChange"].to_numpy())) - 1)
+    print(p_value)
+
+    print("Gradient Descent vs Levenberg-Marquardt")
+    F = mp.f_stat(mp.normalize(test_set["CPIChange"].to_numpy()), test_GD,
+                  mp.normalize(test_set["CPIChange"].to_numpy()), test_LM)
+    p_value = 1 - f.cdf(F, len(mp.normalize(test_set["CPIChange"].to_numpy())) - 1,
+                        len(mp.normalize(test_set["CPIChange"].to_numpy())) - 1)
+    print(p_value)
+
+    print("Gauss-Newton vs Levenberg-Marquardt")
+    F = mp.f_stat(mp.normalize(test_set["CPIChange"].to_numpy()), test_GN,
+                       mp.normalize(test_set["CPIChange"].to_numpy()), test_LM)
+    p_value = 1 - f.cdf(F, len(mp.normalize(test_set["CPIChange"].to_numpy()) - 1),
+                        len(mp.normalize(test_set["CPIChange"].to_numpy()) - 1))
+    print(p_value)

@@ -50,6 +50,18 @@ def loss_mse(y, y_bar):
     return ((y - y_bar) ** 2).mean()
 
 
+def sse(y, y_bar):
+    return ((y - y_bar) ** 2).sum(axis=0)
+
+
+def f_stat(y1, y_bar1, y2, y_bar2):
+    return sse(y1, y_bar1) / sse(y2, y_bar2)
+
+
+def f_stat_diff(y1, y_bar1, y2, y_bar2):
+    return ((sse(y1, y_bar1) - (sse(y2, y_bar2))) / ((len(y1) - 1) - (len(y2) - 1))) / (sse(y2, y_bar2) / (len(y2) - 1))
+
+
 def nonlinear_gradient(weights, x, y, lr):
     '''
     Calculates the gradient, new weights, new loss, and new y_bar for the gradient descent algorithm,
