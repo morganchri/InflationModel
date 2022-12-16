@@ -51,15 +51,27 @@ def loss_mse(y, y_bar):
 
 
 def sse(y, y_bar):
+    '''
+    Returns the sum of squared error
+
+    :param y: Given outputs
+    :param y_bar: calculated outputs
+    :return: the sum of (y - y_bar)**2
+    '''
     return ((y - y_bar) ** 2).sum(axis=0)
 
 
 def f_stat(y1, y_bar1, y2, y_bar2):
+    '''
+    Calculate the F-stat
+
+    :param y1: Given outputs for the first error calculation
+    :param y_bar1: Calculated outputs for the first error calculation
+    :param y2: Given outputs for the second error calculation
+    :param y_bar2: Calculated outputs for the second error calculation
+    :return: The quotient of the two errors
+    '''
     return sse(y1, y_bar1) / sse(y2, y_bar2)
-
-
-def f_stat_diff(y1, y_bar1, y2, y_bar2):
-    return ((sse(y1, y_bar1) - (sse(y2, y_bar2))) / ((len(y1) - 1) - (len(y2) - 1))) / (sse(y2, y_bar2) / (len(y2) - 1))
 
 
 def nonlinear_gradient(weights, x, y, lr):
@@ -107,25 +119,69 @@ def nonlinear_gradient_descent(weights, x, y, lr, epochs):
 
 
 def jacobian(x):
+    '''
+    Jacobian of the model being fit
+
+    :param x:The inputs
+    :return: An array representing the calculated Jacobian
+    '''
     return np.array([-x, -x ** 2, -x ** 3, -x ** 4, -x ** 5])
 
 
 def residual(weights, x, y):
+    '''
+    The residual error of the model
+
+    :param weights: the weights being calculated with the inputs, x
+    :param x: the inputs to calculate the estimated output values for use in computing the residual
+    :param y: the given outputs for use in calculating the residual
+    :return: the residual as the difference in the given outputs and the estimated outputs
+    '''
     y_bar = f(weights, x)
     y_bar = y_bar.reshape(y_bar.shape[0], 1)
     return y - y_bar
 
 
 def gauss_newton(weights, x, y):
+    '''
+    The Gauss-Newton algorithm.  Uses scipy's linear algebra package to calculate the least squares of the jacobian and
+    the residual
+
+    :param weights: the weights being calculated with the inputs, x
+    :param x: the inputs to calculate the estimated output values for use in computing the residual and jacobian
+    :param y: the given outputs for use in calculating the residual
+    :return: the new weights as calculated by the algorithm
+    '''
     J = jacobian(x[:, 0]).T
     r = -residual(weights, x, y).reshape(1, -residual(weights, x, y).shape[0])[0]
     return weights + la.lstsq(J, r)[0]
 
 
 def function(x, a, b, c, d, e, f):
+    '''
+    function for use in the levenberg-marquardt algorithm
+
+    :param x: the inputs
+    :param a: first weight
+    :param b: second weight
+    :param c: third weight
+    :param d: fourth weight
+    :param e: fifth weight
+    :param f: sixth weight
+    :return: an estimated y value
+    '''
     return (a * x ** 5) + (b * x ** 4) + (c * x ** 3) + (d * x ** 2) + (e * x) + f
 
 
 def lm(f, x, y, weights):
+    '''
+    The levenberg-marquardt algorithm, uses scipy's curve_fit function which uses the levenberg-marquardt algorithm
+
+    :param f: the function to be used to fit
+    :param x: the inputs to the function
+    :param y: the known outputs
+    :param weights: the weights that are being modified
+    :return: the outputs from the curve_fit function
+    '''
     popt, pcov = curve_fit(f, x, y, p0=weights)
     return popt

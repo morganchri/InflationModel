@@ -6,10 +6,12 @@ from datetime import datetime
 from scipy.stats import f
 
 if __name__ == '__main__':
+    #Set the start time and print the start time
     np.set_printoptions(threshold=np.inf)
     start_time = datetime.now()
     print(start_time)
 
+    #read in and manipulate the data as needed
     cpi = pd.read_csv("CPIAUCSL.csv")
     m2 = pd.read_csv("M2SL.csv")
     data = cpi.merge(m2, how="right", left_on="DATE", right_on="DATE")
@@ -29,21 +31,15 @@ if __name__ == '__main__':
     x = train_set['M2SL'].to_numpy().reshape(train_set['M2SL'].to_numpy().shape[0], 1)
     y = train_set['CPIChange'].to_numpy().reshape(train_set['CPIChange'].to_numpy().shape[0], 1)
 
+    #set the weights and the inputs for the Gradient Descent algorithm
     b = np.random.rand(5, 1)
     b = np.append(1, b)
     x_vals = mp.normalize(x_data['M2SL'].to_numpy())
-
     x_all = mp.nonlinear_transform(x_vals.reshape(x_vals.shape[0], 1), 5)
-
     x_all = np.concatenate((np.ones((x.shape[0], 1)), x_all), axis=1)
-
     y_vals = mp.normalize(y_data.to_numpy())
-
     y_vals = y_vals.reshape(y_vals.shape[0], 1)
-
     test_weights, losses = mp.nonlinear_gradient_descent(b, x_all, y_vals, 0.75, 500000)
-    print("Gradient Descent Weights")
-    print(test_weights)
     test_y = [mp.f(test_weights, val) for val in x_all]
     print("Gradient Descent Cost")
     print(mp.loss_mse(y_vals, test_y))
@@ -66,14 +62,13 @@ if __name__ == '__main__':
 
     start_time = datetime.now()
 
+    # set the weights and the inputs for the Gauss-Newton algorithm
     b2 = np.random.rand(5)
     x_vals = mp.normalize(x_data['M2SL'].to_numpy())
     x_all = mp.nonlinear_transform(x_vals.reshape(x_vals.shape[0], 1), 5)
     y_vals = mp.normalize(y_data.to_numpy())
     y_vals = y_vals.reshape(y_vals.shape[0], 1)
     weights = mp.gauss_newton(b2, x_all, y_vals)
-    print("Gauss-Newton Weights")
-    print(weights)
     test_y = [mp.f(weights, val) for val in x_all]
     print("Gauss-Newton Cost")
     print(mp.loss_mse(y_vals, test_y))
@@ -90,16 +85,12 @@ if __name__ == '__main__':
 
     start_time = datetime.now()
 
+    # set the weights and the inputs for the Levenberg-Marquardt algorithm
     x_vals = mp.normalize(x_data['M2SL'].to_numpy())
     y_vals = mp.normalize(y_data.to_numpy())
-
     betas = np.random.rand(5, 1)
     betas = np.append(betas, 1)
-
     popt = mp.lm(mp.function, x_vals, y_vals, betas)
-    print("Levenberg-Marquardt Weights")
-    print(popt)
-
     y_test = mp.function(x_vals, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5])
     print("Levenberg-Marquardt Cost")
     print(mp.loss_mse(y_vals, y_test))
@@ -114,9 +105,12 @@ if __name__ == '__main__':
     end_time = datetime.now()
     print('Levenberg-Marquardt Duration: {}'.format(end_time - start_time))
 
+    #get the test data
     test_set = shuffle_df[train_size:]
     x_data_test = test_set.drop(["CPIAUCSL", "CPIChange"], axis=1)
     pd.set_option('display.max_rows', None)
+
+    #set the weights and calculate the test estimates for the Gradient Descent algorithm
     b = np.random.rand(5, 1)
     b = np.append(1, b)
     x_vals_test = mp.normalize(x_data_test['M2SL'].to_numpy())
@@ -136,6 +130,7 @@ if __name__ == '__main__':
     plt.ylabel("Change in CPI")
     plt.show()
 
+    # set the weights and calculate the test estimates for the Gauss-Newton algorithm
     b2 = np.random.rand(5)
     b2 = np.append(b2, 1)
     x_vals_test_GN = mp.normalize(x_data_test['M2SL'].to_numpy())
@@ -154,11 +149,10 @@ if __name__ == '__main__':
     plt.ylabel("Change in CPI")
     plt.show()
 
+    # set the weights and calculate the test estimates for the Levenberg-Marquardt algorithm
     x_vals_test_LM = mp.normalize(x_data_test['M2SL'].to_numpy())
-
     betas = np.random.rand(5, 1)
     betas = np.append(betas, 1)
-
     test_LM = mp.function(x_vals_test_LM, popt[0], popt[1], popt[2], popt[3], popt[4], popt[5])
     test_LM = mp.normalize(np.array(test_LM))
     print("Test Levenberg-Marquardt Cost")
@@ -172,7 +166,7 @@ if __name__ == '__main__':
     plt.ylabel("Change in CPI")
     plt.show()
 
-    # f-scores
+    # f-scores for the algorithms
     print("Gauss-Newton vs Gradient Descent")
     F = mp.f_stat(mp.normalize(test_set["CPIChange"].to_numpy()), test_GN,
                        mp.normalize(test_set["CPIChange"].to_numpy()), test_GD)
